@@ -1,12 +1,76 @@
-import React, { useState } from 'react';
-import shuffle from './utilities/shuffle';
+import React, { useState, useEffect } from 'react';
+import Header from './components/Header';
 import Card from './components/Card';
+import shuffle from './utilities/shuffle';
 
 function App() {
     const [cards, setCards] = useState(shuffle);
+    const [pickOne, setPickOne] = useState(null);
+    const [pickTwo, setPickTwo] = useState(null);
+    const [disabled, setDisabled] = useState(false);
+    const [wins, setWins] = useState(0);
+
+    const handleClick = (card) => {
+        if (!disabled) {
+            pickOne ? setPickTwo(card) : setPickOne(card);
+        }
+    };
+
+    const handleTurn = () => {
+        setPickOne(null);
+        setPickTwo(null);
+        setDisabled(false);
+    };
+
+    const handleNewGame = () => {
+        setWins(0);
+        handleTurn();
+        setCards(shuffle);
+    };
+
+    useEffect(() => {
+        let pickerTimer;
+
+        if (pickOne && pickTwo) {
+            if (pickOne.image === pickTwo.image) {
+                setCards((prevCards) => {
+                    return prevCards.map((card) => {
+                        if (card.image === pickOne.image) {
+                            return { ...card, mathched: true };
+                        } else {
+                            return card;
+                        }
+                    });
+                });
+                handleTurn();
+            } else {
+                setDisabled(true);
+
+                pickerTimer = setTimeout(() => {
+                    handleTurn();
+                }, 1000);
+            }
+
+            return () => {
+                clearTimeout(pickerTimer);
+            };
+        }
+    }, [cards, pickOne, pickTwo]);
+
+    useEffect(() => {
+        const checkWin = cards.filter((card) => !card.mathched);
+
+        if (cards.length && checkWin.length < 1) {
+            console.log('You win!');
+            setWins(wins + 1);
+            handleTurn();
+            setCards(shuffle);
+        }
+    }, [cards, wins]);
 
     return (
         <>
+            <Header handleNewGame={handleNewGame} wins={wins} />
             <div className="grid">
                 {cards.map((card) => {
                     const { image, id, mathched } = card;
@@ -15,14 +79,14 @@ function App() {
                         <Card
                             key={id}
                             image={image}
-                            selected={false}
-                            onClick={() => { }}
+                            selected={card === pickOne || card === pickTwo || mathched}
+                            onClick={() => handleClick(card)}
                         />
                     );
                 })}
             </div>
         </>
     );
-}
+};
 
 export default App;

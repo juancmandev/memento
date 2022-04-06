@@ -5,10 +5,10 @@ const Card = ({ image, selected, onClick }) => {
             <div className={selected && 'selected'}>
                 <img className='card-face' src={image} />
 
-                <img className='card-back' src={'/assets/fireship.png'} />
+                <img className='card-back' src={'/assets/fireship.png'} onClick={onClick} />
             </div>
         </div>
-    )
+    );
 };
 
 export default Card;
