@@ -42,6 +42,7 @@ body {
     background: var(--bg);
     align-items: flex-start;
     justify-content: center;
+    overflow: hidden;
     font-family: var(--font-family);
 }
 
